@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+		<!-- [2026-09-23] Fond posé AVANT tout le reste (fonts, CSS bundlé, JS) :
+		     sur mobile, changer la langue du téléphone force souvent le
+		     navigateur/PWA à recharger l'onglet. Pendant ce rechargement, la
+		     page reste sans style tant que la feuille de police externe et le
+		     CSS buildé n'ont pas fini de charger — l'écran affiche alors un
+		     fond par défaut (blanc/transparent) avant de basculer brutalement
+		     au fond sombre de l'app, ce qui se voit comme "délai puis écran
+		     noir". Ce <style> inline est parsé en synchrone dès le <head>,
+		     avant toute requête réseau : le fond sombre de l'app est donc là
+		     dès la première frame, réseau lent ou pas. `dark` est la valeur
+		     par défaut de l'app (voir le script de thème plus bas) ; en clair,
+		     styles.css réécrit ce fond dès qu'il charge. -->
+		<style>html,body{background:#1A1A1A;margin:0}</style>
+		<!-- Icône d'onglet : logo Velbaz (le "V"), inchangé — V noir quand le
+		     navigateur est en thème clair, V blanc quand il est en thème sombre.
+		     Le choix est fait en JavaScript (matchMedia) et non en CSS : l'attribut
+		     media sur <link rel="icon"> est ignoré par Firefox et inconstant sur
+		     Chrome. Le script inline ci-dessous pose la bonne icône avant le premier
+		     rendu ; src/web/lib/favicon.ts prend ensuite le relais et rebascule en
+		     direct si le thème du navigateur/OS change.
+		     Le ?v=7 force les navigateurs à relâcher l'ancien favicon. -->
+		<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=7" />
+		<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=7" />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<!-- [2026-09-23] Chargée en non-bloquant (preload + bascule au onload) :
+		     un <link rel="stylesheet"> classique bloque tout premier rendu tant
+		     que fonts.googleapis.com n'a pas répondu. Sur un rechargement causé
+		     par un changement de langue téléphone (réseau qui se réinitialise),
+		     cette requête peut traîner plusieurs secondes — l'app entière restait
+		     invisible pendant ce temps. Avec ce montage, la page peut peindre
+		     immédiatement (voir le fond sombre inline ci-dessus) avec la police
+		     système, puis bascule sur la vraie police dès qu'elle arrive. -->
+		<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:wght@400;500;600&display=swap" />
+		<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+		<noscript><link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" /></noscript>
+		<script>
+			(function () {
+				try {
+					var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+					var link = document.querySelector('link[rel~="icon"]');
+					if (link && dark) link.href = '/favicon-32-dark.png?v=7';
+				} catch (e) {}
+			})();
+		</script>
+		<!-- Image des pages connexion / inscription : préchargée dès le HTML → déjà là à l'ouverture -->
+		<link rel="preload" as="image" href="/images/login-right.webp" fetchpriority="high" />
+
+		<!-- Primary SEO -->
+		<title>Velbaz — Build your company with AI</title>
+		<meta name="description" content="Velbaz is the AI platform that builds and runs your company for you: websites, apps, marketing, sales and content, generated and launched in minutes." />
+		<meta name="keywords" content="Velbaz, AI company builder, build a website with AI, AI app builder, AI marketing, autonomous business, no-code AI" />
+		<meta name="author" content="Velbaz" />
+		<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+		<meta name="theme-color" content="#04241b" />
+		<link rel="canonical" href="https://velbaz.com/" />
+
+		<!-- Open Graph (Facebook, LinkedIn, etc.) -->
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="Velbaz" />
+		<meta property="og:title" content="Velbaz — Build your company with AI" />
+		<meta property="og:description" content="The AI platform that builds and runs your company for you: websites, apps, marketing, sales and content, launched in minutes." />
+		<meta property="og:url" content="https://velbaz.com/" />
+		<meta property="og:image" content="https://velbaz.com/og-image.png" />
+		<meta property="og:image:alt" content="Velbaz — Build your company with AI" />
+		<meta property="og:locale" content="en_US" />
+
+		<!-- Twitter / X -->
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content="Velbaz — Build your company with AI" />
+		<meta name="twitter:description" content="The AI platform that builds and runs your company for you: websites, apps, marketing, sales and content, launched in minutes." />
+		<meta name="twitter:image" content="https://velbaz.com/og-image.png" />
+
+		<!-- Requête « velbaz » : c'est une recherche de MARQUE, et Google n'y
+		     répond bien que s'il a compris que Velbaz est une ENTITÉ (une
+		     organisation qui édite un produit), pas juste un mot présent dans
+		     une page. Les deux blocs ci-dessous le disent explicitement :
+		     Organization (qui nous sommes) + WebSite (le site officiel de cette
+		     organisation). C'est ce qui permet au site officiel de sortir en
+		     premier sur son propre nom, et à terme d'obtenir un panneau de
+		     marque à droite des résultats.
+		     À compléter dès que les comptes officiels existent : ajouter leurs
+		     URL dans "sameAs" ci-dessous (X, LinkedIn, Instagram…). Google s'en
+		     sert pour confirmer qu'une même marque est bien derrière tout ça. -->
+		<script type="application/ld+json">
+		{
+			"@context": "https://schema.org",
+			"@type": "Organization",
+			"@id": "https://velbaz.com/#organization",
+			"name": "Velbaz",
+			"alternateName": ["Velbaz AI", "Velbaz.app"],
+			"url": "https://velbaz.com/",
+			"logo": {
+				"@type": "ImageObject",
+				"url": "https://velbaz.com/apple-touch-icon.png",
+				"width": 180,
+				"height": 180
+			},
+			"image": "https://velbaz.com/og-image.png",
+			"description": "Velbaz is an AI company builder: you describe a business idea in one sentence and a team of AI agents builds the brand, the website, the app, the marketing and the sales pipeline, then keeps the company running.",
+			"foundingDate": "2026",
+			"address": {
+				"@type": "PostalAddress",
+				"addressCountry": "BE"
+			},
+			"knowsAbout": [
+				"AI company builder",
+				"company made with AI",
+				"AI website generation",
+				"AI marketing automation"
+			],
+			"sameAs": []
+		}
+		</script>
+		<script type="application/ld+json">
+		{
+			"@context": "https://schema.org",
+			"@type": "WebSite",
+			"@id": "https://velbaz.com/#website",
+			"name": "Velbaz",
+			"url": "https://velbaz.com/",
+			"inLanguage": ["en", "fr", "nl", "es", "de"],
+			"publisher": { "@id": "https://velbaz.com/#organization" }
+		}
+		</script>
+
+		<!-- Structured data for search engines -->
+		<script type="application/ld+json">
+		{
+			"@context": "https://schema.org",
+			"@type": "SoftwareApplication",
+			"name": "Velbaz",
+			"author": { "@id": "https://velbaz.com/#organization" },
+			"applicationCategory": "BusinessApplication",
+			"operatingSystem": "Web",
+			"url": "https://velbaz.com/",
+			"description": "The AI platform that builds and runs your company for you: websites, apps, marketing, sales and content, launched in minutes.",
+			"offers": {
+				"@type": "Offer",
+				"price": "0",
+				"priceCurrency": "USD"
+			}
+		}
+		</script>
+
+		<!-- Theme: apply saved choice before first paint (no flash, never auto-follows OS) -->
+		<script>
+			(function () {
+				var t = 'dark';
+				try {
+					var saved = localStorage.getItem('velbaz-theme');
+					if (saved === 'light' || saved === 'dark') t = saved;
+				} catch (e) {}
+				var el = document.documentElement;
+				el.setAttribute('data-theme', t);
+				el.classList.toggle('light', t === 'light');
+				el.classList.toggle('dark', t === 'dark');
+				// Recouvre le fond posé plus haut (#1A1A1A par défaut) si le
+				// choix enregistré est en réalité "light" — sinon un rechargement
+				// pour un utilisateur en thème clair peindrait un fond sombre
+				// pendant tout le temps que styles.css met à charger.
+				var bg = t === 'light' ? '#FFFFFF' : '#1A1A1A';
+				el.style.background = bg;
+				if (document.body) document.body.style.background = bg;
+			})();
+		</script>
+	</head>
+	<body>
+		<div id="root"></div>
+		<script type="module" src="/src/web/main.tsx"></script>
+	</body>
+</html>

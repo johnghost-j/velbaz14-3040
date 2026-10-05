@@ -1,0 +1,87 @@
+# Admin — e-mails admin en plus du défaut (optionnel, effet au redémarrage)
+ADMIN_EMAILS=
+
+# Stripe — paiements
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+
+# Resend — e-mails
+RESEND_API_KEY=
+RESEND_FROM=
+
+# Printify — print-on-demand
+PRINTIFY_API_TOKEN=
+PRINTIFY_SHOP_ID=
+
+# Higgsfield — images & vidéos
+HF_API_KEY=
+HF_API_SECRET=
+
+# Replicate — upscale IA print-ready
+REPLICATE_API_TOKEN=
+
+# 21st.dev — composants du builder
+TWENTY_FIRST_API_KEY=
+
+# Firecrawl — scraping / clonage de sites
+FIRECRAWL_API_KEY=
+
+# OpenRouter — modèles non filtrés
+OPENROUTER_API_KEY=
+
+# GitHub — export de projets. GITHUB_TOKEN = jeton CLASSIQUE ghp_… avec la case « repo » (les jetons github_pat_ ne peuvent pas créer de dépôt)
+GITHUB_TOKEN=
+GITHUB_OWNER=
+
+# Sentry — surveillance & auto-réparation
+SENTRY_DSN=
+SENTRY_AUTH_TOKEN=
+SENTRY_ORG=
+SENTRY_PROJECT=
+
+# Google — connexion « Continuer avec Google »
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+
+# Bland.ai — appels IA + SMS (Growth Engine). BLAND_FROM obligatoire pour les SMS
+BLAND_API_KEY=
+BLAND_FROM=
+
+# Discord
+DISCORD_CLIENT_ID=
+DISCORD_CLIENT_SECRET=
+DISCORD_BOT_TOKEN=
+
+# Instagram
+INSTAGRAM_CLIENT_ID=
+INSTAGRAM_CLIENT_SECRET=
+
+# Reddit
+REDDIT_CLIENT_ID=
+REDDIT_CLIENT_SECRET=
+
+# Twitter / X
+TWITTER_CLIENT_ID=
+TWITTER_CLIENT_SECRET=
+
+# Google Ads — les clients connectent leur compte, l'IA y crée des campagnes en pause. Client ID/Secret : vides = ceux de GOOGLE_CLIENT_ID/SECRET
+GOOGLE_ADS_DEVELOPER_TOKEN=
+GOOGLE_ADS_CLIENT_ID=
+GOOGLE_ADS_CLIENT_SECRET=
+GOOGLE_ADS_LOGIN_CUSTOMER_ID=
+
+# Meta Ads (Facebook / Instagram) — les clients connectent leur compte, l'IA y crée des campagnes en pause
+META_APP_ID=
+META_APP_SECRET=
+
+# Domaines — raccordement réel des domaines clients (Cloudflare for SaaS + Worker, voir API-KEYS)
+CLOUDFLARE_API_TOKEN=
+CLOUDFLARE_ZONE_ID=
+VELBAZ_DOMAIN_TARGET=
+VELBAZ_EDGE_SECRET=
+
+# Namecheap — achat de domaine + DNS automatique
+NAMECHEAP_API_USER=
+NAMECHEAP_API_KEY=
+NAMECHEAP_USERNAME=
+NAMECHEAP_CLIENT_IP=

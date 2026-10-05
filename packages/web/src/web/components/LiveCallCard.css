@@ -1,0 +1,168 @@
+/* Styles de la carte d'appel (LiveCallCard).
+ * Importés par le composant lui-même : la carte arrive toujours avec ses
+ * styles, même dans un onglet ouvert avant leur ajout (pas de HMR). */
+
+@keyframes lcall-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* ─── Appel IA en direct dans le chat (LiveCallCard) ─────────────────────────
+   [2026-10-01 v2] Version épurée : aucun cadre, aucun fond. La carte se lit
+   comme un message du chat. Une seule onde, dont la couleur suit qui parle
+   (IA = couleur du texte, contact = vert). Vert = en direct, rouge = raccrocher. */
+.lcall {
+  --lc-live: #22c55e;
+  --lvl: 1;
+  position: relative;
+  max-width: 540px;
+  margin: 14px 0;
+  animation: lcall-in 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.lcall--error { font-size: 13px; }
+.lcall-head { display: flex; align-items: center; gap: 12px; }
+.lcall-avatar {
+  position: relative; flex-shrink: 0;
+  width: 38px; height: 38px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--surface-4); color: var(--text-primary);
+  font-size: 12.5px; font-weight: 700; letter-spacing: 0.02em;
+  transition: box-shadow 0.3s;
+}
+.lcall[data-status="live"] .lcall-avatar { box-shadow: 0 0 0 2px var(--surface-0, transparent), 0 0 0 4px color-mix(in srgb, var(--lc-live) 55%, transparent); }
+.lcall-ring {
+  position: absolute; inset: -3px; border-radius: 50%;
+  border: 2px solid var(--lc-live); opacity: 0;
+  animation: lcall-ring 1.4s ease-out infinite;
+}
+@keyframes lcall-ring { 0% { transform: scale(0.9); opacity: 0.6; } 100% { transform: scale(1.45); opacity: 0; } }
+.lcall-who { flex: 1; min-width: 0; }
+.lcall-name { font-size: 15px; font-weight: 640; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lcall-sub { display: flex; align-items: center; gap: 5px; margin-top: 1px; font-size: 12.5px; color: var(--text-dim); font-variant-numeric: tabular-nums; }
+.lcall-status { display: inline-flex; align-items: center; gap: 6px; }
+.lcall[data-status="live"] .lcall-status { color: var(--green-text); font-weight: 600; }
+.lcall[data-status="failed"] .lcall-status { color: var(--red-text); font-weight: 600; }
+.lcall-sim { color: var(--text-dim); }
+.lcall-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--lc-live); animation: lcall-pulse 1.2s ease-in-out infinite; }
+@keyframes lcall-pulse { 50% { opacity: 0.35; } }
+.lcall-goal {
+  margin: 8px 0 0 50px; font-size: 13px; line-height: 1.45; color: var(--text-muted);
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+
+/* ── Boutons ronds (écouter / raccrocher) ── */
+.lcall-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.lcall-round {
+  width: 36px; height: 36px; border-radius: 50%; border: 0; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: transparent; color: var(--text-muted);
+  transition: background 0.15s, color 0.15s, transform 0.1s;
+}
+.lcall-round:hover:not(:disabled) { background: var(--surface-4); color: var(--text-primary); }
+.lcall-round:active:not(:disabled) { transform: scale(0.94); }
+.lcall-round.is-on { color: var(--text-primary); }
+.lcall-round:disabled { opacity: 0.4; cursor: default; }
+.lcall-round--hang { background: #dc2626; color: #fff; }
+.lcall-round--hang:hover:not(:disabled) { background: #b91c1c; color: #fff; }
+
+/* ── Onde unique ── */
+.lcall-wave { display: flex; align-items: center; gap: 12px; margin: 14px 0 0 50px; height: 26px; }
+.lcall-bars { flex: 1; display: flex; align-items: center; gap: 3px; height: 100%; }
+.lcall-bars span {
+  flex: 1; min-width: 2px; height: 100%;
+  border-radius: 2px;
+  background: var(--text-ghost);
+  transform: scaleY(0.1);
+  transform-origin: center;
+  transition: transform 0.35s ease, background 0.25s;
+}
+.lcall-wave[data-who="ai"] .lcall-bars span,
+.lcall-wave[data-who="contact"] .lcall-bars span { animation: lcall-bar 0.9s ease-in-out infinite; }
+.lcall-wave[data-who="ai"] .lcall-bars span { background: var(--text-primary); }
+.lcall-wave[data-who="contact"] .lcall-bars span { background: var(--lc-live); }
+@keyframes lcall-bar {
+  0%, 100% { transform: scaleY(calc(0.14 + var(--h) * 0.25 * var(--lvl))); }
+  50%      { transform: scaleY(min(1, calc(0.2 + var(--h) * 0.8 * var(--lvl)))); }
+}
+.lcall[data-status="ringing"] .lcall-bars span, .lcall[data-status="dialing"] .lcall-bars span { animation: lcall-idle 1.6s ease-in-out infinite; }
+@keyframes lcall-idle { 50% { transform: scaleY(0.2); } }
+.lcall-wave-label { flex-shrink: 0; width: 84px; font-size: 12px; font-weight: 600; color: var(--text-dim); text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lcall-wave[data-who="ai"] .lcall-wave-label { color: var(--text-primary); }
+.lcall-wave[data-who="contact"] .lcall-wave-label { color: var(--green-text); }
+
+/* ── Transcription : du texte, pas de bulles ── */
+.lcall-log {
+  display: flex; flex-direction: column; gap: 9px;
+  max-height: 240px; overflow-y: auto; margin: 12px 0 0 50px; padding: 12px 2px 2px 0;
+  scrollbar-width: thin;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 20px);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 20px);
+}
+.lcall-line { display: grid; grid-template-columns: 58px 1fr; gap: 10px; align-items: baseline; animation: lcall-in 0.22s ease both; }
+.lcall-line p { margin: 0; font-size: 13.5px; line-height: 1.5; color: var(--text-primary); overflow-wrap: anywhere; }
+.lcall-who-tag { font-size: 12px; font-weight: 650; color: var(--text-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lcall-who-tag em { font-style: normal; font-weight: 500; }
+.lcall-line--contact .lcall-who-tag { color: var(--green-text); }
+.lcall-line--user p, .lcall-line--note p { color: var(--text-muted); font-style: italic; }
+.lcall-wait { margin: 12px 0 0 50px; font-size: 13px; color: var(--text-dim); }
+.lcall-link {
+  margin: 10px 0 0 50px; padding: 0; border: 0; background: none; cursor: pointer;
+  font-size: 12.5px; font-weight: 600; color: var(--text-dim);
+}
+.lcall-link:hover { color: var(--text-primary); }
+
+/* ── Consigne privée : une simple ligne ── */
+.lcall-input {
+  display: flex; align-items: center; gap: 8px;
+  margin: 14px 0 0 50px; padding: 4px 0 4px 0;
+  border-bottom: 1px solid var(--border-subtle);
+  transition: border-color 0.15s;
+}
+.lcall-input:focus-within { border-color: var(--text-muted); }
+.lcall-input input {
+  flex: 1; min-width: 0; height: 30px; border: 0; outline: none; background: transparent;
+  font-size: 13.5px; color: var(--text-primary);
+}
+.lcall-input input::placeholder { color: var(--text-dim); }
+.lcall-input button {
+  flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; border: 0; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--btn-primary-bg); color: var(--btn-primary-fg);
+}
+.lcall-input button:disabled { opacity: 0.3; cursor: default; }
+.lcall-spin {
+  width: 13px; height: 13px; border-radius: 50%;
+  border: 2px solid currentColor; border-right-color: transparent;
+  animation: lcall-spin 0.7s linear infinite;
+}
+@keyframes lcall-spin { to { transform: rotate(360deg); } }
+
+/* ── Fin ── */
+.lcall-end { margin: 10px 0 0 50px; display: grid; gap: 8px; }
+.lcall-summary { margin: 0; font-size: 14px; line-height: 1.55; color: var(--text-primary); }
+.lcall-summary span { display: block; margin-bottom: 2px; font-size: 11.5px; font-weight: 650; color: var(--text-dim); }
+.lcall-summary--wait { color: var(--text-dim); font-size: 13px; }
+.lcall-audio { width: 100%; height: 34px; }
+.lcall-err { font-size: 12.5px; color: var(--red-text); margin: 0; }
+.lcall-err--small { font-size: 12px; margin: 6px 0 0 50px; }
+
+/* Carte d'appel : Répondre / Refuser tant qu'un appel entrant sonne */
+.lcall-answer { display: flex; gap: 8px; margin: 12px 0 0 50px; }
+.lcall-answer-btn {
+  height: 32px; padding: 0 14px; border-radius: 999px; border: 0; cursor: pointer;
+  font-size: 13px; font-weight: 600; color: #fff;
+}
+.lcall-answer-btn:disabled { opacity: .6; cursor: default; }
+.lcall-answer-btn.is-accept { background: #16a34a; }
+.lcall-answer-btn.is-decline { background: #dc2626; }
+
+@media (prefers-reduced-motion: reduce) {
+  .lcall, .lcall-line { animation: none; }
+  .lcall-bars span { animation: none !important; transform: scaleY(0.6); }
+  .lcall-ring, .lcall-dot { animation: none; }
+}
+
+/* Mobile : on rend la largeur au texte (pas de retrait sous l'avatar). */
+@media (max-width: 520px) {
+  .lcall-goal, .lcall-wave, .lcall-log, .lcall-wait, .lcall-link,
+  .lcall-input, .lcall-end, .lcall-err--small, .lcall-answer { margin-left: 0; }
+  .lcall-line { grid-template-columns: 46px 1fr; gap: 8px; }
+  .lcall-wave-label { width: 72px; }
+}
